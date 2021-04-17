@@ -10,6 +10,7 @@ import { useStyles } from '../static/MiniDrawerStyles';
 import clsx from 'clsx';
 import SimpleAppBar from './SimpleAppBar';
 import { Box, Typography } from '@material-ui/core';
+import ToastMessage from './Universal/toast-message';
 
 
 export const Routing = (props) => {
@@ -31,6 +32,7 @@ export const Routing = (props) => {
                     <Route path='/dc-details' component={DepartmentSetupPage} />
                     <Route path='/domain' component={AdminSetupPage} />
                 </Switch>
+                <ToastMessage />
             </main>
             <Box width="100%" bgcolor="#174056" color="#fff" position="relative" bottom="0px" p={2.5} textAlign="center">
                 <Typography>Copyright Details</Typography>

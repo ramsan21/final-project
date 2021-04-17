@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Grid, MenuItem, Typography, Breadcrumbs, Link } from '@material-ui/core' 
-import TextField from '@material-ui/core/TextField'; 
+import React, { useState, useEffect, useContext } from 'react';
+import { Box, Grid, MenuItem, Typography, Breadcrumbs, Link } from '@material-ui/core'
+import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import MaterialTable from 'material-table';
 import { makeStyles } from '@material-ui/core/styles';
@@ -8,6 +8,9 @@ import moment from 'moment';
 import tableIcons, { options } from '../component/Universal/table_attributes';
 import MROButton from '../component/FormComponents/Button';
 import MROSelect from '../component/FormComponents/Select';
+import { ToastMessageContext } from '../lib/contexts/message_context';
+import ConfirmAlertDialog from '../component/Universal/confirm-alert-dialog';
+import { useRef } from 'react';
 
 const useStyles = makeStyles(theme => ({
     action: {
@@ -18,10 +21,11 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export const GeneralSetup = () => {
+export const GeneralSetup = ({ history }) => {
     const [filter, setFilter] = useState()
     const [dataList, setDataList] = useState(data)
-    
+    const [selections, setSelections] = useState([]);
+    const tableRef = useRef();
     useEffect(() => {
         console.log('Table ', filter)
 
@@ -30,7 +34,7 @@ export const GeneralSetup = () => {
             let newDataList = data
 
             const { forest, domain, dc_name, } = filter
-               
+
             if (forest) {
                 newDataList = newDataList.filter(record => record.forest == forest)
             }
@@ -46,7 +50,13 @@ export const GeneralSetup = () => {
             console.log('data', newDataList)
             setDataList(newDataList)
         }
+
+        return () => {
+            tableRef && tableRef.current && tableRef.current.onAllSelected(false);
+        }
     }, [filter])
+
+
 
     const tableOptions = {
         ...options,
@@ -91,13 +101,17 @@ export const GeneralSetup = () => {
     return (
         <React.Fragment>
             <Box minHeight="100vh" mt={2} p={2} >
-                <Filter onFilter={f => setFilter(f)} />
+                <Filter history={history} onFilter={f => setFilter(f)} currentSelections={selections} />
                 <MaterialTable
+                    tableRef={tableRef}
                     title=""
                     icons={tableIcons}
                     options={tableOptions}
                     columns={columns}
                     data={dataList}
+                    onSelectionChange={(rows) => {
+                        setSelections(rows.map(row => row))
+                    }}
                 />
             </Box>
         </React.Fragment>
@@ -117,26 +131,49 @@ export const GeneralSetup = () => {
 //   );
 // } 
 
-export const Filter = ({ onFilter }) => {
+export const Filter = ({ onFilter, currentSelections, history }) => {
     const [filter, setFilter] = useState()
     console.log(filter)
+    const message = useContext(ToastMessageContext);
 
     useEffect(() => {
         onFilter(filter)
     }, [filter])
 
-    const classes = useStyles(); 
+    const classes = useStyles();
+
+    const checkSelections = () => {
+        if (currentSelections && !currentSelections.length) {
+            return message.showToastMessage({ message: 'No selection found', variant: 'error' })
+        }
+        triggerPrompt()
+    }
+
+    const [openDialog, setOpenDialog] = useState(false)
+    const triggerPrompt = () => {
+        setOpenDialog(true)
+    }
+
+    const handleClose = () => {
+        setOpenDialog(false)
+    }
+
+    const handleSubmit = () => {
+        history.push('/device')
+    }
 
     return (
         <React.Fragment>
             <Box my={2} width="100%">
 
-                <Breadcrumbs aria-label="breadcrumb">
-                    <Typography color="textPrimary">Cogent</Typography>
-                    <Link color="inherit" href="/generalSetup" >
-                      General Setup
-                    </Link>  
-                </Breadcrumbs>
+                <Box pb={2}>
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Typography color="textPrimary">Cogent</Typography>
+                        <Link color="inherit" href="/generalSetup" >
+                            General Setup
+                    </Link>
+                    </Breadcrumbs>
+                </Box>
 
                 <Grid container alignItems="flex-start">
                     <Grid item container xs={12} md={1}>
@@ -147,64 +184,64 @@ export const Filter = ({ onFilter }) => {
                     <Grid item container xs={12} md={8} lg={8} spacing={1}>
                         <Grid item xs={12} md={3} lg={3}>
                             <Autocomplete
-                                    id="combo-box-forest" 
-                                    onChange={(event, newValue, reason) => {
-                                        if (reason == 'clear') {
-                                            setFilter({...filter, forest: '' })
-                                        }
-                                        if (newValue && newValue.title) {
-                                            setFilter({...filter, forest: newValue.title })
-                                        }
-                                    }}
-                                    options={data && data.map(item => {
-                                        return {
-                                            title: item.forest
-                                        }
-                                    })}
-                                    getOptionLabel={(option) => option.title}
-                                    
-                                    renderInput={(params) => <TextField {...params}   label="Forest" variant="outlined" />}
-                                /> 
+                                id="combo-box-forest"
+                                onChange={(event, newValue, reason) => {
+                                    if (reason == 'clear') {
+                                        setFilter({ ...filter, forest: '' })
+                                    }
+                                    if (newValue && newValue.title) {
+                                        setFilter({ ...filter, forest: newValue.title })
+                                    }
+                                }}
+                                options={data && data.map(item => {
+                                    return {
+                                        title: item.forest
+                                    }
+                                })}
+                                getOptionLabel={(option) => option.title}
+
+                                renderInput={(params) => <TextField {...params} label="Forest" variant="outlined" />}
+                            />
                         </Grid>
                         <Grid item xs={12} md={3} lg={3}>
                             <Autocomplete
-                                    id="combo-box-domain" 
-                                    onChange={(event, newValue, reason) => {
-                                        if (reason == 'clear') {
-                                            setFilter({...filter, domain: '' })
-                                        }
-                                        if (newValue && newValue.title) {
-                                            setFilter({...filter, domain: newValue.title })
-                                        }
-                                      }}
-                                    options={data && data.map(item => {
-                                        return {
-                                            title: item.domain
-                                        }
-                                    })}
-                                    getOptionLabel={(option) => option.title} 
-                                    renderInput={(params) => <TextField {...params} label="Domain" variant="outlined" />}
-                                /> 
+                                id="combo-box-domain"
+                                onChange={(event, newValue, reason) => {
+                                    if (reason == 'clear') {
+                                        setFilter({ ...filter, domain: '' })
+                                    }
+                                    if (newValue && newValue.title) {
+                                        setFilter({ ...filter, domain: newValue.title })
+                                    }
+                                }}
+                                options={data && data.map(item => {
+                                    return {
+                                        title: item.domain
+                                    }
+                                })}
+                                getOptionLabel={(option) => option.title}
+                                renderInput={(params) => <TextField {...params} label="Domain" variant="outlined" />}
+                            />
                         </Grid>
                         <Grid item xs={12} md={3} lg={3}>
                             <Autocomplete
-                                    id="combo-box-dc_name" 
-                                    onChange={(event, newValue, reason) => { 
-                                        if (reason == 'clear') {
-                                            setFilter({...filter, dc_name: '' })
-                                        }
-                                        if (newValue && newValue.title) {
-                                            setFilter({...filter, dc_name: newValue.title })
-                                        }
-                                      }}
-                                    options={data && data.map(item => {
-                                        return {
-                                            title: item.dc_name
-                                        }
-                                    })}
-                                    getOptionLabel={(option) => option.title} 
-                                    renderInput={(params) => <TextField {...params} label="DC Name" variant="outlined" />}
-                            /> 
+                                id="combo-box-dc_name"
+                                onChange={(event, newValue, reason) => {
+                                    if (reason == 'clear') {
+                                        setFilter({ ...filter, dc_name: '' })
+                                    }
+                                    if (newValue && newValue.title) {
+                                        setFilter({ ...filter, dc_name: newValue.title })
+                                    }
+                                }}
+                                options={data && data.map(item => {
+                                    return {
+                                        title: item.dc_name
+                                    }
+                                })}
+                                getOptionLabel={(option) => option.title}
+                                renderInput={(params) => <TextField {...params} label="DC Name" variant="outlined" />}
+                            />
                         </Grid>
                         {/* <Grid item xs={12} md={2} lg={1}>
                             <MROSelect
@@ -220,13 +257,13 @@ export const Filter = ({ onFilter }) => {
                     </Grid>
                     <Grid item container xs={12} md={3} lg={3} justify="flex-end">
                         <Grid item container justify="flex-end" className={classes.action}>
-                            <MROButton variant="contained" color="secondary">Trigger Repave</MROButton>
+                            <MROButton onClick={checkSelections} variant="contained" color="secondary">Trigger Repave</MROButton>
                             <Spacer height={10} />
-                            <MROButton variant="contained" color="secondary">Demote</MROButton>
+                            <MROButton onClick={checkSelections} variant="contained" color="secondary">Demote</MROButton>
                         </Grid>
                     </Grid>
                 </Grid>
-
+                <ConfirmAlertDialog open={openDialog} handleClose={handleClose} handleSubmit={handleSubmit} />
             </Box>
         </React.Fragment>
     )

@@ -4,13 +4,22 @@ import { makeStyles } from '@material-ui/core/styles';
 import MaterialTable from 'material-table';
 import tableIcons, { options } from '../component/Universal/table_attributes';
 import { constructObject, data } from './GeneralSetup';
+import { Grain, Home, Whatshot } from '@material-ui/icons';
 
 const useStyles = makeStyles(theme => ({
     tableToolbar: {
         '&.MTableToolbar-root-24': {
             minHeight: theme.spacing(5) + 'px !important'
         }
-    }
+    },
+    link: {
+        display: 'flex',
+    },
+    icon: {
+        marginRight: theme.spacing(0.5),
+        width: 20,
+        height: 20,
+    },
 }))
 
 export const AdminSetupPage = () => {
@@ -55,14 +64,18 @@ export const AdminSetupPage = () => {
     return (
         <React.Fragment>
             <Box minHeight="100vh" pl={1}>
-
-                <Breadcrumbs aria-label="breadcrumb">
-                    <Typography color="textPrimary">Cogent</Typography>
-                    <Link color="inherit" href="/domain" >
-                      Admin Setup Page
-                    </Link>  
-                </Breadcrumbs>
-
+                <Box py={1}>
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Link color="inherit" href="/" className={classes.link}>
+                            <Home className={classes.icon} />
+                                Cogent
+                        </Link>
+                        <Link color="inherit" href="/domain" className={classes.link}>
+                            <Whatshot className={classes.icon} />
+                        Admin Setup Page
+                        </Link>
+                    </Breadcrumbs>
+                </Box>
                 <Box mb={2}>
                     <Typography variant="subtitle2" gutterBottom>(DCDIAG checks failed)</Typography>
                     <MaterialTable title=""

@@ -2,6 +2,7 @@ import React from "react";
 import clsx from 'clsx';
 import withBreadcrumbs from "react-router-breadcrumbs-hoc";
 import Paper from '@material-ui/core/Paper';
+import HomeIcon from '@material-ui/icons/Home';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import Link from '@material-ui/core/Link';
@@ -18,13 +19,15 @@ const PureBreadcrumbs = (({ breadcrumbs }) => {
                     <Breadcrumbs
                         separator={< NavigateNextIcon fontSize="small" />}
                         aria-label="Breadcrumb">
+
                         {breadcrumbs.map(({
                             breadcrumb,
                             match
                         }, index) => (
                             <div key={match.url}>
                                 {console.log(match.url)}
-                                <Link component={RouterLink} color="inherit" to={match.url}>{breadcrumb}</Link>
+                                <Link component={RouterLink} color="inherit" to={match.url}>
+                                    {breadcrumb}</Link>
                             </div>
                         ))}
                     </Breadcrumbs>
