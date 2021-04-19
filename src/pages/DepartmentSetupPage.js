@@ -1,5 +1,5 @@
 import { Box, Typography, Grid, Paper, Breadcrumbs, Link } from "@material-ui/core";
-import React from "react";
+import React, { useState } from "react";
 import GeneralDetails from "../component/GeneralDetail";
 import RepaveTimeline from "../component/RepaveTimeline";
 import CustomizedTimeline from "../component/CustomizedTimeline";
@@ -57,16 +57,19 @@ export const DepartmentSetupPage = () => {
   ];
 
   const classes = useStyles();
+
+  const [logs, setLogs] = useState([]);
+
   return (
     <React.Fragment>
       <Box minHeight="100vh" pl={1}>
 
-      <Breadcrumbs aria-label="breadcrumb">
-        <Typography color="textPrimary">Cogent</Typography>
-        <Link color="inherit" href="/dc-details" >
-          Dep Setup Page
-        </Link>  
-      </Breadcrumbs>
+        <Breadcrumbs aria-label="breadcrumb">
+          <Typography color="textPrimary">Cogent</Typography>
+          <Link color="inherit" href="/dc-details" >
+            Dep Setup Page
+        </Link>
+        </Breadcrumbs>
 
         <Box mb={2}>
           <Typography variant="subtitle2" gutterBottom>
@@ -93,7 +96,7 @@ export const DepartmentSetupPage = () => {
                 DC Repave Timeline:
               </Typography>
               <Paper className={classes.paper}>
-                <CustomizedTimeline data={timelineData} />
+                <CustomizedTimeline logs={logs} setLogs={setLogs} data={timelineData} />
               </Paper>
             </Grid>
             <Grid item xs={6}>
@@ -101,7 +104,7 @@ export const DepartmentSetupPage = () => {
                 Logs:
               </Typography>
               <Paper className={classes.paper}>
-                <Logs data={data} />
+                <Logs logs={logs} data={data} />
               </Paper>
             </Grid>
           </Grid>

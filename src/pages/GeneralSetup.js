@@ -8,7 +8,7 @@ import moment from 'moment';
 import tableIcons, { options } from '../component/Universal/table_attributes';
 import MROButton from '../component/FormComponents/Button';
 import MROSelect from '../component/FormComponents/Select';
-import { ToastMessageContext } from '../lib/contexts/message_context';
+import { ToastMessageContext } from '../lib/contexts/message.context';
 import ConfirmAlertDialog from '../component/Universal/confirm-alert-dialog';
 import { useRef } from 'react';
 
@@ -225,6 +225,9 @@ export const Filter = ({ onFilter, currentSelections, history }) => {
                         </Grid>
                         <Grid item xs={12} md={3} lg={3}>
                             <Autocomplete
+                                clearText
+                                multiple
+                                limitTags={1}
                                 id="combo-box-dc_name"
                                 onChange={(event, newValue, reason) => {
                                     if (reason == 'clear') {

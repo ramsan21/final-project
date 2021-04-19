@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useContext, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Timeline from "@material-ui/lab/Timeline";
 import TimelineItem from "@material-ui/lab/TimelineItem";
@@ -16,8 +16,12 @@ import {
   CheckCircleOutline,
   Stop,
   DoneOutline,
-  Error
+  Error,
+  ErrorOutline,
+  SettingsRemote
 } from "@material-ui/icons";
+import ConfirmAlertDialog from "./Universal/confirm-alert-dialog";
+import { ToastMessageContext } from "../lib/contexts/message.context";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -32,95 +36,133 @@ export const timelineData = [
   {
     task: "Repave Ready",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: true
   },
   {
     task: "Repave In progress",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: false
   },
   {
     task: "DC Demo In Progress",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: true
   },
   {
     task: "Repave Completed",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: false
   },
   {
     task: "OSRE Pave In progress",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: true
   },
   {
     task: "OSRE Pave Completed",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: true
   },
   {
     task: "Repave Ready",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: true
   },
   {
     task: "Pave In Progress",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: false
   },
   {
     task: "DC Promo In progress",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: true
   },
   {
     task: "Post Promo In progress",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: true
   },
   {
-    task: "Pave Completed",
+    task: "Pave Failure",
     tasktime: "30-03-2021 17:05:06 PM",
+    status: false
   },
 ];
 
-export default function CustomizedTimeline() {
+export default function CustomizedTimeline({ setLogs, logs }) {
   const classes = useStyles();
+  const [openDialog, setOpenDialog] = useState(false);
+  const [item, setItem] = useState({});
+  const message = useContext(ToastMessageContext);
+
+  const handleClick = item => () => {
+    setItem(item)
+    setOpenDialog(true)
+  }
+
+  const handleClose = () => {
+    setOpenDialog(false)
+  }
+
+  const handleSubmit = () => {
+    if (!item.status)
+      setLogs([
+        ...logs,
+        item
+      ])
+    else message.showToastMessage({ message: item.task, variant: 'success' })
+    handleClose()
+  }
 
   return (
-    <Timeline align="alternate">
-      <TimelineItem>
-        <TimelineOppositeContent />
-        <TimelineSeparator>
-          <TimelineDot style={{ color: "#fff", backgroundColor: "#1B5E20" }}>
-            <PlayArrow />
-          </TimelineDot>
-          <TimelineConnector style={{ backgroundColor: "#FF6D00" }} />
-        </TimelineSeparator>
-        <TimelineContent></TimelineContent>
-      </TimelineItem>
-      {timelineData.map((item, index) => (
+    <React.Fragment>
+      <Timeline align="alternate">
         <TimelineItem>
-          <TimelineOppositeContent>
-            <Typography variant="body2" color="textSecondary">
-              {item.tasktime}
-            </Typography>
-          </TimelineOppositeContent>
+          <TimelineOppositeContent />
           <TimelineSeparator>
-            <TimelineDot style={{ color: "#00C853", backgroundColor: "#fff" }}>
-              <DoneOutline />
+            <TimelineDot style={{ color: "#fff", backgroundColor: "#1B5E20" }}>
+              <PlayArrow />
             </TimelineDot>
             <TimelineConnector style={{ backgroundColor: "#FF6D00" }} />
           </TimelineSeparator>
-          <TimelineContent>
-            <Paper elevation={3} className={classes.paper}>
-              <Typography variant="h6" component="h1">
-                Step {index + 1}
-              </Typography>
-              <Typography>{item.task}</Typography>
-            </Paper>
-          </TimelineContent>
+          <TimelineContent></TimelineContent>
         </TimelineItem>
-      ))}
-      <TimelineItem>
-        <TimelineSeparator>
-          <TimelineDot style={{ color: "#fff", backgroundColor: "#D50000" }}>
-            <Stop />
-          </TimelineDot>
-        </TimelineSeparator>
-        <TimelineContent />
-      </TimelineItem>
-    </Timeline>
+        {timelineData.map((item, index) => (
+          <TimelineItem onClick={handleClick(item)}>
+            <TimelineOppositeContent>
+              <Typography variant="body2" color="textSecondary">
+                {item.tasktime}
+              </Typography>
+            </TimelineOppositeContent>
+            <TimelineSeparator>
+              <TimelineDot style={{ color: item.status ? "#00C853" : "#D50000", backgroundColor: "#fff" }}>
+                {
+                  item.status ? <DoneOutline /> : <Error />
+                }
+              </TimelineDot>
+              <TimelineConnector style={{ backgroundColor: "#FF6D00" }} />
+            </TimelineSeparator>
+            <TimelineContent>
+              <Paper elevation={3} className={classes.paper}>
+                <Typography variant="h6" component="h1">
+                  Step {index + 1}
+                </Typography>
+                <Typography>{item.task}</Typography>
+              </Paper>
+            </TimelineContent>
+          </TimelineItem>
+        ))}
+        <TimelineItem>
+          <TimelineSeparator>
+            <TimelineDot style={{ color: "#fff", backgroundColor: "#D50000" }}>
+              <Stop />
+            </TimelineDot>
+          </TimelineSeparator>
+          <TimelineContent />
+        </TimelineItem>
+      </Timeline>
+      <ConfirmAlertDialog open={openDialog} handleClose={handleClose} handleSubmit={handleSubmit} />
+    </React.Fragment>
   );
 }

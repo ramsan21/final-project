@@ -172,6 +172,12 @@ const MROTheme = createMuiTheme({
                 marginRight: '0px'
             }
         },
+        MuiTable: {
+            root: {
+                fontSize: defaultTheme.spacing(2),
+                textTransform: 'capitalize'
+            }
+        },
     }
 })
     ;

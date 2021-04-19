@@ -1,8 +1,9 @@
 import { ThemeProvider } from '@material-ui/styles';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import ToastMessage from './component/Universal/toast-message';
 import MainPageContainer from './container/MainPageContainer';
-import ToastMessageProvider from "../src/lib/contexts/message_context";
+import ToastMessageProvider from "./lib/contexts/message.context";
 import MROTheme from './theme';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <ThemeProvider theme={MROTheme}>
           <ToastMessageProvider>
             <MainPageContainer />
+            <ToastMessage />
           </ToastMessageProvider>
         </ThemeProvider>
       </BrowserRouter>

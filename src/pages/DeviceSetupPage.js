@@ -1,10 +1,12 @@
-import { Box, Divider, Grid, MenuItem, Switch, Typography, Breadcrumbs, Link } from '@material-ui/core';
+import { Box, Divider, Grid, MenuItem, Switch, Typography, Breadcrumbs, Link, TextField, IconButton, Button } from '@material-ui/core';
 import React, { useState, useEffect } from 'react';
 import MaterialTable from 'material-table';
 import moment from 'moment';
 import tableIcons, { options } from '../component/Universal/table_attributes';
 import MROSelect from '../component/FormComponents/Select';
 import { constructObject, data } from './GeneralSetup';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import MROAutocomplete from '../component/FormComponents/Autocomplete';
 
 export const DeviceSetupPage = ({ history, ...props }) => {
     const [filter, setFilter] = useState()
@@ -31,9 +33,15 @@ export const DeviceSetupPage = ({ history, ...props }) => {
             title: 'Request #',
             field: 'request',
             filtering: false,
-            render: rowData => <Typography color={currentSelection.request === rowData.request ? 'secondary' : 'textPrimary'}>
-                {rowData.request}
-            </Typography>
+            render: rowData => <Button onClick={() => onRowClick(rowData)}>
+                <Typography style={{
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    textUnderlinePosition: 'auto'
+                }} color={'secondary'}>
+                    {rowData.request}
+                </Typography>
+            </Button>
         },
         {
             title: 'DCName',
@@ -63,7 +71,7 @@ export const DeviceSetupPage = ({ history, ...props }) => {
         }
     ]
 
-    const onRowClick = (event, rowData) => {
+    const onRowClick = (rowData) => {
         debugger;
         setCurrentSelection(rowData);
         new Promise((resolve, reject) => {
@@ -110,14 +118,28 @@ export const DeviceSetupPage = ({ history, ...props }) => {
                             onClick: (event, rowData) => alert("You saved " + rowData.name)
                         }
                     ]}
-                    onRowClick={(event, rowData) => onRowClick(null, rowData)}
+                    // onRowClick={(event, rowData) => onRowClick(null, rowData)}
+                    detailPanel={rowData => {
+                        return (
+                            <Box pl={2} p={1}>
+                                <Typography>An example of a table with expandable rows, revealing more information. </Typography>
+                            </Box>
+                        )
+                    }}
                 />
             </Box>
-        </React.Fragment>
+        </React.Fragment >
     )
 }
 
 const Filter = () => {
+
+    const [state, setState] = useState({
+        forests: [],
+        domains: [],
+        dataCenters: [],
+        dcNames: []
+    })
 
     return (
         <React.Fragment>
@@ -129,50 +151,60 @@ const Filter = () => {
                             <Typography variant="subtitle2">Filter :</Typography>
                         </Box>
                     </Grid>
-                    <Grid item container xs={12} md={8} lg={8} spacing={2}>
-                        <Grid item xs={12} md={6} lg={3}>
-                            <MROSelect
-                                name={"forest"}
-                                label={"Forest"}
+                    <Grid item container xs={12} md={8} lg={9} spacing={2}>
+                        <Grid item xs={12} md={6} lg={3} alignItems="center">
+
+                            <MROAutocomplete
+                                options={data}
+                                label="Forest"
+                                optionLabel="forest"
+                                getState={(data) => setState({
+                                    ...state,
+                                    forests: data
+                                })}
                                 multiple
-                            >
-                                {data && data.map(item => <MenuItem key={item.forest} value={item.forest}>
-                                    {item.forest}
-                                </MenuItem>)}
-                            </MROSelect>
+                                limitTags={1}
+                            />
+
                         </Grid>
                         <Grid item xs={12} md={6} lg={3}>
-                            <MROSelect
-                                name={"domain"}
-                                label={"Domain"}
+                            <MROAutocomplete
+                                options={state.forests}
+                                optionLabel="domain"
+                                label="Domain"
+                                getState={data => setState({
+                                    ...state,
+                                    domains: data
+                                })}
                                 multiple
-                            >
-                                {data && data.map(item => <MenuItem key={item.domain} value={item.domain}>
-                                    {item.domain}
-                                </MenuItem>)}
-                            </MROSelect>
+                                limitTags={1}
+                            />
+
                         </Grid>
                         <Grid item xs={12} md={6} lg={3}>
-                            <MROSelect
-                                name={"dc"}
-                                label={"DataCenter"}
+                            <MROAutocomplete
+                                options={state.domains}
+                                label="DataCenter"
+                                optionLabel="d_center"
+                                getState={data => setState({
+                                    ...state,
+                                    dataCenters: data
+                                })}
                                 multiple
-                            >
-                                {data && data.map(item => <MenuItem key={item.d_center} value={item.d_center}>
-                                    {item.d_center}
-                                </MenuItem>)}
-                            </MROSelect>
+                                limitTags={1}
+                            />
+
                         </Grid>
                         <Grid item xs={12} md={6} lg={3}>
-                            <MROSelect
-                                name={"dc_name"}
-                                label={"DC Name"}
+                            <MROAutocomplete
+                                options={state.dataCenters}
+                                label="DC Name"
+                                optionLabel="dc_name"
+                                getState={(d) => console.log(d)}
                                 multiple
-                            >
-                                {data && data.map(item => <MenuItem key={item.dc_name} value={item.dc_name}>
-                                    {item.dc_name}
-                                </MenuItem>)}
-                            </MROSelect>
+                                limitTags={1}
+                            />
+
                         </Grid>
                     </Grid>
 
