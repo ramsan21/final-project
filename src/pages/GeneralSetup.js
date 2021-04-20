@@ -11,6 +11,7 @@ import MROSelect from '../component/FormComponents/Select';
 import { ToastMessageContext } from '../lib/contexts/message.context';
 import ConfirmAlertDialog from '../component/Universal/confirm-alert-dialog';
 import { useRef } from 'react';
+import MROAutocomplete from '../component/FormComponents/Autocomplete';
 
 const useStyles = makeStyles(theme => ({
     action: {
@@ -28,35 +29,13 @@ export const GeneralSetup = ({ history }) => {
     const tableRef = useRef();
     useEffect(() => {
         console.log('Table ', filter)
-
-        if (filter) {
-
-            let newDataList = data
-
-            const { forest, domain, dc_name, } = filter
-
-            if (forest) {
-                newDataList = newDataList.filter(record => record.forest == forest)
-            }
-
-            if (domain) {
-                newDataList = newDataList.filter(record => record.domain == domain)
-            }
-
-            if (dc_name) {
-                newDataList = newDataList.filter(record => record.dc_name == dc_name)
-            }
-
-            console.log('data', newDataList)
-            setDataList(newDataList)
-        }
-
+        setDataList(data)
         return () => {
             tableRef && tableRef.current && tableRef.current.onAllSelected(false);
         }
-    }, [filter])
+    }, [])
 
-
+    console.log(dataList)
 
     const tableOptions = {
         ...options,
@@ -101,7 +80,9 @@ export const GeneralSetup = ({ history }) => {
     return (
         <React.Fragment>
             <Box minHeight="100vh" mt={2} p={2} >
-                <Filter history={history} onFilter={f => setFilter(f)} currentSelections={selections} />
+                <Filter history={history}
+                    setDataList={setDataList}
+                    dataList={dataList} onFilter={f => setFilter(f)} currentSelections={selections} />
                 <MaterialTable
                     tableRef={tableRef}
                     title=""
@@ -131,14 +112,30 @@ export const GeneralSetup = ({ history }) => {
 //   );
 // } 
 
-export const Filter = ({ onFilter, currentSelections, history }) => {
-    const [filter, setFilter] = useState()
-    console.log(filter)
+export const Filter = ({ currentSelections, history, setDataList }) => {
+
+    const [state, setState] = useState({
+        forests: [],
+        domains: [],
+        dcNames: []
+    });
+    const [update, setUpdate] = useState('');
     const message = useContext(ToastMessageContext);
 
+    const handleClear = () => {
+        setDataList(data)
+    }
+
     useEffect(() => {
-        onFilter(filter)
-    }, [filter])
+        const { forests, domains, dcNames } = state;
+        if (update === 'forest' && !!forests.length) {
+            setDataList(state.forests)
+        } else if (update === 'domain' && !!domains.length) {
+            setDataList(state.domains)
+        } else if (update === 'dc_name' && !!dcNames.length) {
+            setDataList(state.dcNames)
+        }
+    }, [update, state.forests.length, state.domains.length, state.dcNames.length])
 
     const classes = useStyles();
 
@@ -183,68 +180,57 @@ export const Filter = ({ onFilter, currentSelections, history }) => {
                     </Grid>
                     <Grid item container xs={12} md={8} lg={8} spacing={1}>
                         <Grid item xs={12} md={3} lg={3}>
-                            <Autocomplete
-                                id="combo-box-forest"
-                                onChange={(event, newValue, reason) => {
-                                    if (reason == 'clear') {
-                                        setFilter({ ...filter, forest: '' })
-                                    }
-                                    if (newValue && newValue.title) {
-                                        setFilter({ ...filter, forest: newValue.title })
-                                    }
+                            <MROAutocomplete
+                                handleClear={handleClear}
+                                options={data}
+                                label="Forest"
+                                optionLabel="forest"
+                                getState={(data) => {
+                                    setUpdate('forest')
+                                    setState({
+                                        ...state,
+                                        forests: data
+                                    })
                                 }}
-                                options={data && data.map(item => {
-                                    return {
-                                        title: item.forest
-                                    }
-                                })}
-                                getOptionLabel={(option) => option.title}
-
-                                renderInput={(params) => <TextField {...params} label="Forest" variant="outlined" />}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={3} lg={3}>
-                            <Autocomplete
-                                id="combo-box-domain"
-                                onChange={(event, newValue, reason) => {
-                                    if (reason == 'clear') {
-                                        setFilter({ ...filter, domain: '' })
-                                    }
-                                    if (newValue && newValue.title) {
-                                        setFilter({ ...filter, domain: newValue.title })
-                                    }
-                                }}
-                                options={data && data.map(item => {
-                                    return {
-                                        title: item.domain
-                                    }
-                                })}
-                                getOptionLabel={(option) => option.title}
-                                renderInput={(params) => <TextField {...params} label="Domain" variant="outlined" />}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={3} lg={3}>
-                            <Autocomplete
-                                clearText
                                 multiple
                                 limitTags={1}
-                                id="combo-box-dc_name"
-                                onChange={(event, newValue, reason) => {
-                                    if (reason == 'clear') {
-                                        setFilter({ ...filter, dc_name: '' })
-                                    }
-                                    if (newValue && newValue.title) {
-                                        setFilter({ ...filter, dc_name: newValue.title })
-                                    }
-                                }}
-                                options={data && data.map(item => {
-                                    return {
-                                        title: item.dc_name
-                                    }
-                                })}
-                                getOptionLabel={(option) => option.title}
-                                renderInput={(params) => <TextField {...params} label="DC Name" variant="outlined" />}
                             />
+
+                        </Grid>
+                        <Grid item xs={12} md={3} lg={3}>
+                            <MROAutocomplete
+                                options={state.forests}
+                                label="Domain"
+                                optionLabel="domain"
+                                getState={(data) => {
+                                    setUpdate('domain')
+                                    setState({
+                                        ...state,
+                                        domains: data
+                                    })
+                                }}
+                                multiple
+                                limitTags={1}
+                            />
+
+                        </Grid>
+                        <Grid item xs={12} md={3} lg={3}>
+                            <MROAutocomplete
+                                options={state.domains}
+                                label="DC Name"
+                                optionLabel="dc_name"
+                                getState={(data) => {
+
+                                    setUpdate('dc_name')
+                                    setState({
+                                        ...state,
+                                        dcNames: data
+                                    })
+                                }}
+                                multiple
+                                limitTags={1}
+                            />
+
                         </Grid>
                         {/* <Grid item xs={12} md={2} lg={1}>
                             <MROSelect
