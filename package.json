@@ -17,7 +17,8 @@
     "react-router-breadcrumbs-hoc": "^3.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.0.1",
-    "reactstrap": "^8.0.0"
+    "reactstrap": "^8.0.0",
+    "styled-components": "^5.2.3"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -12,6 +12,7 @@ import { ToastMessageContext } from '../lib/contexts/message.context';
 import ConfirmAlertDialog from '../component/Universal/confirm-alert-dialog';
 import { useRef } from 'react';
 import MROAutocomplete from '../component/FormComponents/Autocomplete';
+import CustomizedHookAutoComplete from '../component/FormComponents/CustomisedHookAutoComplete';
 
 const useStyles = makeStyles(theme => ({
     action: {
@@ -179,8 +180,21 @@ export const Filter = ({ currentSelections, history, setDataList }) => {
                         </Box>
                     </Grid>
                     <Grid item container xs={12} md={8} lg={8} spacing={1}>
-                        <Grid item xs={12} md={3} lg={3}>
-                            <MROAutocomplete
+                        <Grid item container xs={12} md={3} lg={3}>
+                            <CustomizedHookAutoComplete
+                                options={data}
+                                handleClear={handleClear}
+                                optionLabel="forest"
+                                label="Forests"
+                                getState={(data) => {
+                                    setUpdate('forest')
+                                    setState({
+                                        ...state,
+                                        forests: data
+                                    })
+                                }}
+                            />
+                            {/* <MROAutocomplete
                                 handleClear={handleClear}
                                 options={data}
                                 label="Forest"
@@ -194,11 +208,23 @@ export const Filter = ({ currentSelections, history, setDataList }) => {
                                 }}
                                 multiple
                                 limitTags={1}
-                            />
+                            /> */}
 
                         </Grid>
                         <Grid item xs={12} md={3} lg={3}>
-                            <MROAutocomplete
+                            <CustomizedHookAutoComplete
+                                options={state.forests}
+                                optionLabel="domain"
+                                label="Domain"
+                                getState={(data) => {
+                                    setUpdate('domain')
+                                    setState({
+                                        ...state,
+                                        domains: data
+                                    })
+                                }}
+                            />
+                            {/* <MROAutocomplete
                                 options={state.forests}
                                 label="Domain"
                                 optionLabel="domain"
@@ -211,11 +237,23 @@ export const Filter = ({ currentSelections, history, setDataList }) => {
                                 }}
                                 multiple
                                 limitTags={1}
-                            />
+                            /> */}
 
                         </Grid>
                         <Grid item xs={12} md={3} lg={3}>
-                            <MROAutocomplete
+                            <CustomizedHookAutoComplete
+                                options={state.forests}
+                                optionLabel="dc_name"
+                                label="DCName"
+                                getState={(data) => {
+                                    setUpdate('dc_name')
+                                    setState({
+                                        ...state,
+                                        dcNames: data
+                                    })
+                                }}
+                            />
+                            {/* <MROAutocomplete
                                 options={state.domains}
                                 label="DC Name"
                                 optionLabel="dc_name"
@@ -229,7 +267,7 @@ export const Filter = ({ currentSelections, history, setDataList }) => {
                                 }}
                                 multiple
                                 limitTags={1}
-                            />
+                            /> */}
 
                         </Grid>
                         {/* <Grid item xs={12} md={2} lg={1}>
