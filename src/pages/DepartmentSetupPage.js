@@ -1,7 +1,14 @@
-import { Box, Typography, Grid, Paper, Breadcrumbs, Link } from "@material-ui/core";
+import {
+  Box,
+  Typography,
+  Grid,
+  Paper,
+  Breadcrumbs,
+  Link,
+} from "@material-ui/core";
 import React, { useState } from "react";
 import GeneralDetails from "../component/GeneralDetail";
-import RepaveTimeline from "../component/RepaveTimeline";
+// import RepaveTimeline from "../component/RepaveTimeline";
 import CustomizedTimeline from "../component/CustomizedTimeline";
 import Logs from "../component/Logs";
 import { makeStyles } from "@material-ui/core/styles";
@@ -63,12 +70,11 @@ export const DepartmentSetupPage = () => {
   return (
     <React.Fragment>
       <Box minHeight="100vh" pl={1}>
-
         <Breadcrumbs aria-label="breadcrumb">
           <Typography color="textPrimary">Cogent</Typography>
-          <Link color="inherit" href="/dc-details" >
+          <Link color="inherit" href="/dc-details">
             Dep Setup Page
-        </Link>
+          </Link>
         </Breadcrumbs>
 
         <Box mb={2}>
@@ -77,18 +83,6 @@ export const DepartmentSetupPage = () => {
           </Typography>
           <GeneralDetails data={data} />
         </Box>
-        <Box mb={2}>
-          <Typography variant="subtitle2" gutterBottom>
-            DC Repave Timeline:
-          </Typography>
-          <RepaveTimeline data={data} />
-        </Box>
-        <Box mb={2}>
-          <Typography variant="subtitle2" gutterBottom>
-            Logs:
-          </Typography>
-          <Logs data={data} />
-        </Box>
         <div className={classes.root}>
           <Grid container spacing={3}>
             <Grid item xs={6}>
@@ -96,7 +90,11 @@ export const DepartmentSetupPage = () => {
                 DC Repave Timeline:
               </Typography>
               <Paper className={classes.paper}>
-                <CustomizedTimeline logs={logs} setLogs={setLogs} data={timelineData} />
+                <CustomizedTimeline
+                  logs={logs}
+                  setLogs={setLogs}
+                  data={timelineData}
+                />
               </Paper>
             </Grid>
             <Grid item xs={6}>
